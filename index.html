@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>星垂渡舟 - 整合版</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{
+    width:100vw; height:100vh; overflow:hidden; background:#000;
+    display:flex; justify-content:center; align-items:center;
+}
+.wrap-base{
+    width: min(100vw, calc(100vh * 16 / 9));
+    height: min(100vh, calc(100vw * 9 / 16));
+    position: relative;
+    overflow: hidden;
+}
+.page{
+    position: absolute; top:0; left:0;
+    width:100%; height:100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.page.active{
+    display: flex;
+}
+
+/* ===== 加载页 ===== */
+.loading-wrap{
+    width:100%; height:100%; position:relative; overflow:hidden;
+    background: url("loading/jiazaiyebeijing.png") center no-repeat;
+    background-size:100% 100%;
+}
+.loading-text{
+    position:absolute; top:57%; left:52%; transform:translateX(-50%);
+    color:#b8c2cc; font-size:2.0vw; letter-spacing:0.4vw;
+}
+.dot{
+    animation:dotAnim 1.2s infinite steps(4); opacity:0;
+}
+.dot:nth-child(2){animation-delay:0.3s;}
+.dot:nth-child(3){animation-delay:0.6s;}
+@keyframes dotAnim{
+    0%{opacity:0;} 25%{opacity:1;} 50%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;}
+}
+.progress-box{
+    position:absolute; bottom:18%; left:6%; width:88%; overflow:visible;
+}
+.progress-bg{
+    width:100%; height:0.55vw; background:#222830; border-radius:0.3vw;
+    position:relative; overflow:visible;
+}
+.progress-fill{
+    width:0%; height:0.55vw; background:#b8d8f0; border-radius:0.3vw;
+    transition:width 0.05s linear;
+}
+.butterfly{
+    position:absolute; top:-3vw; left:0%; width:3.2vw; height:2.4vw;
+    transform:translateX(-50%);
+    animation:fly 1.2s ease-in-out infinite alternate;
+    z-index:9999;
+    background:url("loading/hudie.png") no-repeat;
+    background-size:contain;
+}
+@keyframes fly{
+    0%{transform:translateX(-50%) translateY(-0.3vw);}
+    100%{transform:translateX(-50%) translateY(0.3vw);}
+}
+.progress-num{
+    position:absolute; right:0; top:-3.3vw;
+    color:#dde6f0; font-size:2vw;
+}
+.tips-text{
+    position:absolute; bottom:10%; left:50%; transform:translateX(-50%);
+    color:#949fa8; font-size:1.8vw; letter-spacing:0.2vw;
+}
+
+/* ===== 进入页 ===== */
+.enter-wrap{
+    width:100%; height:100%; position:relative; overflow:hidden;
+    background:url("into/jinrubeijing.png") no-repeat;
+    background-size:100% 100%;
+}
+.main-title{
+    position:absolute; top:32%; left:50%; transform:translateX(-50%);
+    width:40%; height:auto;
+    animation:breathe 3s ease-in-out infinite alternate;
+}
+@keyframes breathe{
+    0%{transform:translateX(-50%) scale(1); opacity:0.92;}
+    100%{transform:translateX(-50%) scale(1.03); opacity:1;}
+}
+.city-select{
+    position:absolute; top:63%; left:50%; transform:translateX(-50%);
+    width:24%; height:auto; cursor:pointer; transition:all 0.3s ease;
+}
+.city-select:hover{ filter:brightness(1.15); }
+.enter-btn{
+    position:absolute; top:78%; left:50%; transform:translateX(-50%);
+    width:18%; height:auto; cursor:pointer; transition:all 0.25s ease;
+}
+.enter-btn:hover{ transform:translateX(-50%) scale(1.08); filter:drop-shadow(0 0 12px #fff); }
+.enter-btn:active{ transform:translateX(-50%) scale(0.96); }
+.icon-group{
+    position:absolute; right:2.5%; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:18px;
+}
+.icon-item{
+    width:86px; height:86px; transition:transform 0.2s ease,filter 0.2s ease;
+    cursor:pointer;
+}
+.icon-item:hover{ transform:scale(1.12); filter:drop-shadow(0 0 8px #fff); }
+
+/* ===== 首页主界面 ===== */
+.main-wrap{
+    width:100%; height:100%; position:relative;
+    background:url("shouye/shouyebeijingtu.png") center no-repeat;
+    background-size:contain; background-position:center;
+}
+.game-btn{
+    cursor:pointer; transform-origin:center center;
+    transition:all 0.22s cubic-bezier(0.18,0.8,0.22,1.15);
+    transform:translateY(0) rotate(0deg) scale(1);
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+}
+.game-btn:hover{
+    transform:translateY(-2px) rotate(-0.4deg) scale(1.03);
+    filter:drop-shadow(0 3px 8px rgba(114,191,255,0.55)) drop-shadow(0 6px 14px rgba(114,191,255,0.28)) drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+.game-btn:active{
+    transform:translateY(1px) rotate(0deg) scale(0.98);
+    filter:drop-shadow(0 1px 2px rgba(59,127,201,0.6)) drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+.box_top_left_icon{
+    position:absolute; top:2.0%; left:1.7%; display:flex; gap:2.0%;
+}
+.box_top_left_icon img{ width:18.0%; height:auto; }
+.box_top_resource{
+    position:absolute; top:1.6%; right:0.4%;
+}
+.box_top_resource img{ width:39.0%; height:auto; }
+.btn_shop{
+    position:absolute; bottom:18.5%; left:5.4%; width:14.8%; height:auto;
+}
+.btn_bag{
+    position:absolute; bottom:19.5%; left:20.6%; width:14.8%; height:auto;
+}
+.btn_story{
+    position:absolute; top:20.5%; right:24.8%; width:18.6%; height:auto; z-index:10;
+}
+.btn_challenge{
+    position:absolute; top:18.8%; right:5.8%; width:30.5%; height:auto; z-index:9;
+}
+.btn_character{
+    position:absolute; top:50.8%; right:19.8%; width:16.8%; height:auto; z-index:8;
+}
+.btn_activity{
+    position:absolute; top:48.6%; right:7.3%; width:11.6%; height:auto; z-index:7;
+}
+.btn_task{
+    position:absolute; top:64.5%; right:7.0%; width:11.6%; height:auto; z-index:6;
+}
+
+/* ===== 背包页 ===== */
+.bag-box{
+    width:100%; height:100%;
+    background-color: #1a1f2a;
+    background-image:url("bag/bagjiemian.png");
+    background-repeat:no-repeat;
+    background-size:contain;
+    background-position:center;
+    position:relative;
+}
+#page-bag .ui-btn{
+    position:absolute;
+    height:10%;
+    background-size:100% 100%;
+    background-repeat:no-repeat;
+    cursor:pointer;
+    transition:all 0.2s ease;
+    transform-origin:left top;
+    z-index:10;
+}
+#page-bag .ui-btn:hover{ transform:scale(1.05); filter:brightness(1.4); }
+#page-bag .ui-btn:active{ transform:scale(0.97); filter:brightness(0.9); }
+#page-bag .btn-back{
+    top:2.1%; left:0.63%; width:12%;
+    background-image:url("bag/tuichu.png");
+}
+#page-bag .btn-home{
+    top:2.1%; left:12.2%; width:13.5%;
+    background-image:url("bag/fanhui.png");
+}
+
+/* ===== 游戏线样式 ===== */
+/* 角色选择页 */
+#viewBox{
+    aspect-ratio:1707/960;
+    width:min(100vw, calc(100vh * 1707 / 960));
+    height:min(100vh, calc(100vw * 960 / 1707));
+    position:relative; overflow:hidden;
+    background:url("zhunbei/zhunbeibeijing.png") no-repeat;
+    background-size:cover;
+    z-index:1;
+}
+.top-nav{
+    position:fixed; top:28px; left:24px; display:flex; gap:16px; z-index:9999; align-items:center;
+}
+.nav-btn{
+    cursor:pointer; transition:0.25s ease;
+}
+.nav-btn.back{ width:160px; height:auto; }
+.nav-btn.home{ width:180px; height:auto; }
+.nav-btn.attantion{ width:60px; height:auto; }
+.nav-btn:hover{ transform:scale(1.06); filter:brightness(1.3) drop-shadow(0 0 8px #fff); }
+.arrow-l, .arrow-r{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:4.687%; opacity:0.65; cursor:pointer; transition:0.3s; z-index:10;
+}
+.arrow-l{left:1.054%;}
+.arrow-r{right:1.054%;}
+.arrow-l:hover, .arrow-r:hover{
+    opacity:1; transform:translateY(-50%) scale(1.18);
+    filter:drop-shadow(0 0 10px #fff);
+}
+.card-container{
+    position:absolute; width:90.799%; height:76.042%; top:11.979%; left:7.616%;
+    display:flex; align-items:center; gap:1.406%;
+}
+.card-unlock, .card-lock{
+    flex:0 0 14.477%; height:96%; transition:0.3s ease;
+    cursor:pointer; position:relative;
+}
+.card-lock{ filter:brightness(0.38); }
+.card-img{ width:100%; height:100%; object-fit:contain; }
+.card-unlock:hover{ transform:translateY(-14px); filter:drop-shadow(0 0 16px #88ccff); }
+.card-lock:hover{ filter:brightness(0.55); }
+.point-arrow{
+    position:absolute; width:22%; top:5%; left:50%; transform:translateX(-50%);
+    z-index:15; opacity:0; pointer-events:none; transition:opacity 0.4s ease;
+    animation:blink 1.3s infinite alternate;
+}
+.show{ opacity:1; }
+@keyframes blink{
+    0%{transform:translateX(-50%) scale(0.94);}
+    100%{transform:translateX(-50%) scale(1.09);}
+}
+.start-action{
+    position:fixed; bottom:110px; left:50%; transform:translateX(-50%);
+    width:320px; cursor:pointer; transition:0.28s; z-index:9999;
+}
+.start-action:hover{ transform:translateX(-50%) scale(1.07); filter:drop-shadow(0 0 12px #fff); }
+.start-action:active{ transform:translateX(-50%) scale(0.96); }
+
+/* 游戏容器 */
+.game-wrap {
+    position:relative; width:1707px; height:960px; transform-origin:center center; overflow:hidden;
+}
+#gameBox, #gameBox2 {
+    position:relative; width:100%; height:100%; overflow:hidden;
+}
+.bg { width:100%; height:100%; position:absolute; top:0; left:0; }
+
+.game-back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 170px;
+    height: 70px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.ui-kill {
+    position:absolute; top:90px; left:180px; width:200px; height:65px;
+}
+.ui-score {
+    position:absolute; top:90px; left:45%; width:200px; height:65px;
+}
+.num-kill, .num-score {
+    position:absolute; top:102px; color:#fff; font-size:28px; font-weight:bold;
+}
+.num-kill{ left:300px; }
+.num-score{ left:53%; }
+.role-head {
+    position:absolute; top:10px; right:40px; width:200px; height:180px;
+}
+.hp-bar-bg {
+    position:absolute; top:90px; right:171px; width:320px; height:22px;
+}
+.hp-bar-fill {
+    position:absolute; top:90px; right:170px; width:320px; height:22px; background:#ffd033;
+}
+.hp-text {
+    position:absolute; top:80px; right:500px; color:#fff; font-size:28px; font-weight:bold;
+}
+.hpNum {
+    position:absolute; top:80px; right:500px; color:#fff; font-size:28px; font-weight:bold;
+}
+.player {
+    position:absolute; left:40px; bottom:220px; width:110px; height:180px; z-index:2;
+    transition:filter 0.05s; display:block; object-fit:contain;
+}
+.player-hurt { filter:saturate(3) brightness(0.6) sepia(1) hue-rotate(-40deg); }
+.bullet {
+    position:absolute; width:140px; height:32px; z-index:1;
+}
+.monster { position:absolute; z-index:1; }
+.m1{ width:160px; height:130px; }
+.m2{ width:140px; height:110px; }
+.explode {
+    position:absolute; width:180px; height:150px; z-index:3; pointer-events:none;
+}
+.control-box {
+    position:absolute; bottom:20px; left:0; width:100%; height:220px;
+}
+.dir-btn {
+    position:absolute; width:100px; height:100px; cursor:pointer;
+}
+.btn-up{ left:130px; top:0; }
+.btn-left{ left:20px; top:100px; }
+.btn-down{ left:130px; top:100px; }
+.dir-btn-right {
+    position:absolute; width:100px; height:100px; cursor:pointer;
+    left:240px; top:100px;
+}
+.btn-attack {
+    position:absolute; right:40px; bottom:20px; width:140px; height:140px; cursor:pointer;
+}
+#startMask, #startMask2 {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.7); z-index:99;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    color:#fff; text-align:center;
+}
+.mask-main-tip{ font-size:48px; margin-bottom:24px; }
+.mask-key-tip{ font-size:32px; color:#ffef70; font-weight:bold; }
+
+/* 结算页面 */
+#resultWrap, #resultWrap2 {
+    position:absolute; top:50%; left:50%;
+    width:1920px; height:1080px; transform-origin:center center;
+    display:none; cursor:pointer;
+    background:#1a1f2a; border-radius:8px; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,0.8);
+}
+.result-box{ width:100%; height:100%; position:relative; }
+.result-box img{
+    position:absolute; border:none; object-fit:contain;
+}
+.bg-success{ width:1920px; height:1080px; left:0; top:0; display:none; }
+.bg-fail{ width:1920px; left:0; top:0; display:none; }
+.char{ width:900px; height:1000px; left:30px; top:60px; display:none; }
+.star1{ width:120px; height:120px; left:1170px; top:470px; display:none; }
+.star2{ width:260px; height:120px; left:1170px; top:470px; display:none; }
+.star3{ width:390px; height:120px; left:1170px; top:470px; display:none; }
+.exp-500{ width:720px; height:36px; left:1150px; top:680px; display:none; }
+.exp-1000{ width:720px; height:36px; left:1150px; top:680px; display:none; }
+.exp-1500{ width:720px; height:36px; left:1150px; top:680px; display:none; }
+</style>
+</head>
+<body>
+<div class="wrap-base">
+    <!-- ===== 主页线页面 ===== -->
+    <div class="page active" id="page-enter">
+        <div class="enter-wrap">
+            <img src="into/jinruyemianbiaoti.png" alt="星垂渡舟" class="main-title">
+            <img src="into/Bcheng.png" alt="选择地区B城" class="city-select">
+            <img src="into/jinruyouxi.png" alt="进入游戏" class="enter-btn" onclick="runLoading()">
+            <div class="icon-group">
+                <img src="into/kefuzixun.png" class="icon-item">
+                <img src="into/xitongshezhi.png" class="icon-item">
+                <img src="into/xianshiqi.png" class="icon-item">
+                <img src="into/yunfuwuqi.png" class="icon-item">
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="page-loading">
+        <div class="loading-wrap">
+            <div class="loading-text">加载中<span class="dot">·</span><span class="dot">·</span><span class="dot">·</span></div>
+            <div class="progress-box">
+                <div class="progress-bg">
+                    <div class="progress-fill"></div>
+                    <div class="butterfly"></div>
+                </div>
+                <div class="progress-num">0%</div>
+            </div>
+            <div class="tips-text">玩家校验通过，加载世界位面……</div>
+        </div>
+    </div>
+
+    <div class="page" id="page-main">
+        <div class="main-wrap">
+            <div class="box_top_left_icon">
+                <img src="shouye/shezhi1.png" class="game-btn" alt="设置">
+                <img src="shouye/sanjiaoxinggantan.png" class="game-btn" alt="公告">
+                <img src="shouye/youxiang.png" class="game-btn" alt="邮件">
+                <img src="shouye/rili.png" class="game-btn" alt="活动日历">
+            </div>
+            <img src="shouye/shangdian.png" class="game-btn btn_shop" alt="商店">
+            <img src="shouye/beibao.png" class="game-btn btn_bag" alt="背包" onclick="navigateTo('bag')">
+            <img src="shouye/juqing.png" class="game-btn btn_story" alt="剧情">
+            <img src="shouye/tiaozhan.png" class="game-btn btn_challenge" alt="挑战" onclick="navigateTo('select')">
+            <img src="shouye/juese.png" class="game-btn btn_character" alt="角色">
+            <img src="shouye/huodong.png" class="game-btn btn_activity" alt="活动">
+            <img src="shouye/renwu.png" class="game-btn btn_task" alt="任务">
+        </div>
+    </div>
+
+    <!-- 背包页 -->
+    <div class="page" id="page-bag">
+        <div class="bag-box">
+            <div class="ui-btn btn-back" onclick="navigateTo('main')"></div>
+            <div class="ui-btn btn-home" onclick="navigateTo('main')"></div>
+        </div>
+    </div>
+
+    <!-- ===== 游戏线页面 ===== -->
+    <div class="page" id="page-select">
+        <div class="top-nav">
+            <img src="zhunbei/fanhui.png" class="nav-btn back" onclick="navigateTo('main')">
+            <img src="zhunbei/shouye.png" class="nav-btn home" onclick="navigateTo('main')">
+            <img src="zhunbei/zhuyi.png" class="nav-btn attantion">
+        </div>
+        <div id="viewBox">
+            <img src="zhunbei/xiangzuo.png" class="arrow-l">
+            <img src="zhunbei/xiangyou.png" class="arrow-r">
+            <div class="card-container">
+                <div class="card-unlock" id="cardLuoti">
+                    <img src="zhunbei/pai1.png" class="card-img">
+                    <img src="zhunbei/xuanze.png" class="point-arrow show" id="arrowLuoti">
+                </div>
+                <div class="card-unlock" id="cardYanbai">
+                    <img src="zhunbei/pai2.png" class="card-img">
+                    <img src="zhunbei/xuanze.png" class="point-arrow" id="arrowYanbai">
+                </div>
+                <div class="card-lock"><img src="zhunbei/suodingkapai.png" class="card-img"></div>
+                <div class="card-lock"><img src="zhunbei/suodingkapai.png" class="card-img"></div>
+                <div class="card-lock"><img src="zhunbei/suodingkapai.png" class="card-img"></div>
+                <div class="card-lock"><img src="zhunbei/suodingkapai.png" class="card-img"></div>
+            </div>
+        </div>
+        <img src="zhunbei/kaishixingdong.png" class="start-action" id="startBtn">
+    </div>
+
+    <div class="page" id="page-role1">
+        <div class="game-wrap" id="gameWrap1">
+            <div id="gameBox">
+                <img src="images/background.png" class="bg" alt="雪原背景">
+                <img src="images/back.png" class="game-back-btn" id="backBtn1" alt="返回">
+                <img src="images/kill.png" class="ui-kill" alt="击怪面板">
+                <span class="num-kill" id="killNum">0</span>
+                <img src="images/score.png" class="ui-score" alt="得分面板">
+                <span class="num-score" id="scoreNum">0</span>
+                <img src="images/downblood.png" class="hp-bar-bg" alt="血条底色">
+                <div class="hp-bar-fill" id="hpFill"></div>
+                <img src="images/imge.png" class="role-head" alt="洛缇安头像">
+                <span class="hpNum" id="hpNum">100</span>
+                <img src="images/people.png" class="player" id="player" alt="洛缇安">
+                <div class="control-box">
+                    <img src="images/up.png" class="dir-btn btn-up" id="btnUp" alt="上">
+                    <img src="images/left.png" class="dir-btn btn-left" id="btnLeft" alt="左">
+                    <img src="images/down.png" class="dir-btn btn-down" id="btnDown" alt="下">
+                    <img src="images/right.png" class="dir-btn-right" id="btnRight" alt="右">
+                    <img src="images/attack.png" class="btn-attack" id="btnAtk" alt="攻击">
+                </div>
+                <div id="startMask">
+                    <div class="mask-main-tip">点击画面任意位置开始游戏</div>
+                    <div class="mask-key-tip">PC端WSAD控制人物上下左右，空格键控制攻击</div>
+                </div>
+            </div>
+        </div>
+        <div id="resultWrap">
+            <div class="result-box">
+                <img class="bg-success" src="sum/jiesuanditu.png">
+                <img class="bg-fail" src="sum/shibaiditu.png">
+                <img class="char" src="sum/jiesuanrenwu.png">
+                <img class="star1" src="sum/xingxing1.png">
+                <img class="star2" src="sum/xingxing2.png">
+                <img class="star3" src="sum/xingxing3.png">
+                <img class="exp-500" src="sum/500jingyan.png">
+                <img class="exp-1000" src="sum/1000jingyan.png">
+                <img class="exp-1500" src="sum/1500jingyan.png">
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="page-role2">
+        <div class="game-wrap" id="gameWrap2">
+            <div id="gameBox2">
+                <img src="images/background.png" class="bg" alt="雪原背景">
+                <img src="images/back.png" class="game-back-btn" id="backBtn2" alt="返回">
+                <img src="images/kill.png" class="ui-kill" alt="击怪面板">
+                <span class="num-kill" id="killNum2">0</span>
+                <img src="images/score.png" class="ui-score" alt="得分面板">
+                <span class="num-score" id="scoreNum2">0</span>
+                <img src="images/downblood.png" class="hp-bar-bg" alt="血条底色">
+                <div class="hp-bar-fill" id="hpFill2"></div>
+                <img src="images/imgee.png" class="role-head" alt="砚白头像">
+                <span class="hpNum" id="hpNum2">100</span>
+                <img src="images/peoplee.png" class="player" id="player2" alt="砚白">
+                <div class="control-box">
+                    <img src="images/up.png" class="dir-btn btn-up" id="btnUp2" alt="上">
+                    <img src="images/left.png" class="dir-btn btn-left" id="btnLeft2" alt="左">
+                    <img src="images/down.png" class="dir-btn btn-down" id="btnDown2" alt="下">
+                    <img src="images/right.png" class="dir-btn-right" id="btnRight2" alt="右">
+                    <img src="images/attack.png" class="btn-attack" id="btnAtk2" alt="攻击">
+                </div>
+                <div id="startMask2">
+                    <div class="mask-main-tip">点击画面任意位置开始游戏</div>
+                    <div class="mask-key-tip">PC端WSAD控制人物上下左右，空格键控制攻击</div>
+                </div>
+            </div>
+        </div>
+        <div id="resultWrap2">
+            <div class="result-box">
+                <img class="bg-success" src="sum/jiesuanditu.png">
+                <img class="bg-fail" src="sum/shibaiditu2.png">
+                <img class="char" src="sum/jiesuanrenwu2.png">
+                <img class="star1" src="sum/xingxing1.png">
+                <img class="star2" src="sum/xingxing2.png">
+                <img class="star3" src="sum/xingxing3.png">
+                <img class="exp-500" src="sum/500jingyan.png">
+                <img class="exp-1000" src="sum/1000jingyan.png">
+                <img class="exp-1500" src="sum/1500jingyan.png">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+// 音频管理器 —— 统一控制背景音乐 & 音效（路径已修正为 music/）
+// ================================================================
+const AudioManager = {
+    bgMusic: null,
+    battleMusic: null,
+    sfxShoot: null,
+    sfxMonsterHit: null,
+    sfxPlayerHit: null,
+    isBgPlaying: false,
+    isBattlePlaying: false,
+    _initialized: false,
+
+    init() {
+        if (this._initialized) return;
+        try {
+            // 背景音乐（循环）
+            this.bgMusic = new Audio('music/beijingyinyue.mp3');
+            this.bgMusic.loop = true;
+            this.bgMusic.volume = 0.45;
+
+            this.battleMusic = new Audio('music/zhandouyinyue.mp3');
+            this.battleMusic.loop = true;
+            this.battleMusic.volume = 0.45;
+
+            // 音效（不循环）
+            this.sfxShoot = new Audio('music/fashe.mp3');
+            this.sfxShoot.volume = 0.35;
+
+            this.sfxMonsterHit = new Audio('music/guaishoubeidazhong.mp3');
+            this.sfxMonsterHit.volume = 0.35;
+
+            this.sfxPlayerHit = new Audio('music/renwubeidazhong.mp3');
+            this.sfxPlayerHit.volume = 0.35;
+
+            // 预加载
+            this.bgMusic.load();
+            this.battleMusic.load();
+            this.sfxShoot.load();
+            this.sfxMonsterHit.load();
+            this.sfxPlayerHit.load();
+
+            this._initialized = true;
+            console.log('[AudioManager] 初始化完成，音频路径: music/');
+        } catch (e) {
+            console.warn('[AudioManager] 初始化失败（可能缺少音频文件）', e);
+        }
+    },
+
+    playBg() {
+        if (!this._initialized) return;
+        try {
+            if (this.isBgPlaying && !this.bgMusic.paused) return;
+            this.stopAllBg();
+            this.bgMusic.currentTime = 0;
+            this.bgMusic.play().catch(e => console.warn('播放背景音乐失败', e));
+            this.isBgPlaying = true;
+            this.isBattlePlaying = false;
+        } catch (e) { console.warn(e); }
+    },
+
+    playBattle() {
+        if (!this._initialized) return;
+        try {
+            if (this.isBattlePlaying && !this.battleMusic.paused) return;
+            this.stopAllBg();
+            this.battleMusic.currentTime = 0;
+            this.battleMusic.play().catch(e => console.warn('播放战斗音乐失败', e));
+            this.isBattlePlaying = true;
+            this.isBgPlaying = false;
+        } catch (e) { console.warn(e); }
+    },
+
+    stopAllBg() {
+        try {
+            this.bgMusic.pause();
+            this.battleMusic.pause();
+            this.isBgPlaying = false;
+            this.isBattlePlaying = false;
+        } catch (e) { console.warn(e); }
+    },
+
+    playShoot() {
+        if (!this._initialized) return;
+        try {
+            this.sfxShoot.currentTime = 0;
+            this.sfxShoot.play().catch(e => console.warn('发射音效播放失败', e));
+        } catch (e) { console.warn(e); }
+    },
+
+    playMonsterHit() {
+        if (!this._initialized) return;
+        try {
+            this.sfxMonsterHit.currentTime = 0;
+            this.sfxMonsterHit.play().catch(e => console.warn('怪物受击音效播放失败', e));
+        } catch (e) { console.warn(e); }
+    },
+
+    playPlayerHit() {
+        if (!this._initialized) return;
+        try {
+            this.sfxPlayerHit.currentTime = 0;
+            this.sfxPlayerHit.play().catch(e => console.warn('玩家受击音效播放失败', e));
+        } catch (e) { console.warn(e); }
+    }
+};
+
+// ================================================================
+// 全局导航控制
+// ================================================================
+function navigateTo(pageId) {
+    const hash = '#' + pageId;
+    if (location.hash !== hash) {
+        location.hash = hash;
+    } else {
+        renderPage();
+    }
+}
+
+function renderPage() {
+    const hash = location.hash.replace('#', '') || 'enter';
+    const validPages = ['enter', 'loading', 'main', 'bag', 'select', 'role1', 'role2'];
+    let targetId = validPages.includes(hash) ? hash : 'enter';
+
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + targetId);
+    if (target) {
+        target.classList.add('active');
+        if (targetId === 'role1' && window.resetRole1) window.resetRole1();
+        if (targetId === 'role2' && window.resetRole2) window.resetRole2();
+    } else {
+        document.getElementById('page-enter').classList.add('active');
+        targetId = 'enter';
+        location.hash = '#enter';
+    }
+
+    // 背景音乐切换
+    if (!AudioManager._initialized) {
+        AudioManager.init();
+    }
+    if (targetId === 'role1' || targetId === 'role2') {
+        AudioManager.playBattle();
+    } else if (targetId === 'main' || targetId === 'enter' || targetId === 'select' || targetId === 'bag' || targetId === 'loading') {
+        if (!AudioManager.isBgPlaying) {
+            AudioManager.playBg();
+        }
+    }
+}
+
+window.addEventListener('hashchange', renderPage);
+window.addEventListener('load', function() {
+    AudioManager.init();
+    renderPage();
+});
+
+document.addEventListener('wheel', e => e.ctrlKey && e.preventDefault(), { passive: false });
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+// ================================================================
+// 加载页 → 主页
+// ================================================================
+function runLoading() {
+    AudioManager.init();
+    AudioManager.playBg();
+    navigateTo('loading');
+    const progressFill = document.querySelector('.progress-fill');
+    const butterfly = document.querySelector('.butterfly');
+    const progressNum = document.querySelector('.progress-num');
+    let currentPercent = 0;
+    const timer = setInterval(() => {
+        if (currentPercent < 100) {
+            currentPercent += 1;
+            progressFill.style.width = currentPercent + '%';
+            butterfly.style.left = currentPercent + '%';
+            progressNum.innerText = currentPercent + '%';
+        } else {
+            clearInterval(timer);
+            navigateTo('main');
+        }
+    }, 15);
+}
+
+// ================================================================
+// 游戏线角色选择
+// ================================================================
+const cardLuoti = document.getElementById("cardLuoti");
+const cardYanbai = document.getElementById("cardYanbai");
+const arrowLuoti = document.getElementById("arrowLuoti");
+const arrowYanbai = document.getElementById("arrowYanbai");
+const startBtn = document.getElementById('startBtn');
+let selectRole = "role1";
+cardLuoti.onclick = () => {
+    arrowLuoti.classList.add("show");
+    arrowYanbai.classList.remove("show");
+    selectRole = "role1";
+};
+cardYanbai.onclick = () => {
+    arrowYanbai.classList.add("show");
+    arrowLuoti.classList.remove("show");
+    selectRole = "role2";
+};
+startBtn.onclick = () => {
+    navigateTo(selectRole);
+};
+
+// ================================================================
+// 洛缇安游戏 (角色1)
+// ================================================================
+(function(){
+let totalKill = 0;
+const game = {
+    running: false, hp: 100, score: 0, killCount: 0,
+    playerX: 40, playerY: 220, playerSpeed: 8,
+    bulletArr: [], monsterArr: [], monsterTimer: null, frameTimer: null,
+    snowBottomLine: 220, topBuildingLine: 180, isPlayerHurt: false, maxMonsterCount: 6,
+    originW: 1707, originH: 960, playerW:110, playerH:180
+};
+const gameBox = document.getElementById('gameBox');
+const gameWrap = document.getElementById('gameWrap1');
+const resultWrap = document.getElementById('resultWrap');
+const player = document.getElementById('player');
+const hpFill = document.getElementById('hpFill');
+const hpNum = document.getElementById('hpNum');
+const scoreNum = document.getElementById('scoreNum');
+const killNum = document.getElementById('killNum');
+const startMask = document.getElementById('startMask');
+const btnUp = document.getElementById('btnUp');
+const btnDown = document.getElementById('btnDown');
+const btnLeft = document.getElementById('btnLeft');
+const btnRight = document.getElementById('btnRight');
+const btnAtk = document.getElementById('btnAtk');
+const backBtn = document.getElementById('backBtn1');
+const bgSuccess = resultWrap.querySelector('.bg-success');
+const bgFail = resultWrap.querySelector('.bg-fail');
+const charNormal = resultWrap.querySelector('.char');
+const star1 = resultWrap.querySelector('.star1');
+const star2 = resultWrap.querySelector('.star2');
+const star3 = resultWrap.querySelector('.star3');
+const exp500 = resultWrap.querySelector('.exp-500');
+const exp1000 = resultWrap.querySelector('.exp-1000');
+const exp1500 = resultWrap.querySelector('.exp-1500');
+
+function resetGame(){
+    game.running = false;
+    clearInterval(game.monsterTimer);
+    cancelAnimationFrame(game.frameTimer);
+    game.hp = 100;
+    game.score = 0;
+    game.killCount = 0;
+    game.playerX = 40;
+    game.playerY = 220;
+    game.isPlayerHurt = false;
+    game.bulletArr.forEach(b=>b.dom.remove());
+    game.monsterArr.forEach(m=>m.dom.remove());
+    game.bulletArr = [];
+    game.monsterArr = [];
+    hpNum.innerText = game.hp;
+    hpFill.style.width = '316px';
+    scoreNum.innerText = game.score;
+    killNum.innerText = game.killCount;
+    player.style.left = game.playerX+'px';
+    player.style.bottom = game.playerY+'px';
+    player.classList.remove('player-hurt');
+    startMask.style.display = 'flex';
+    resultWrap.style.display = 'none';
+    resultWrap.onclick = null;
+    gameWrap.style.display = 'block';
+}
+window.resetRole1 = resetGame;
+
+backBtn.onclick = ()=>{
+    resetGame();
+    navigateTo('select');
+};
+
+function resizeAll() {
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const scaleGame = Math.min(winW / game.originW, winH / game.originH);
+    gameWrap.style.transform = `scale(${scaleGame})`;
+    const resW = 1920, resH = 1080;
+    const scaleResult = Math.min(winW / resW, winH / resH);
+    resultWrap.style.transform = `translate(-50%, -50%) scale(${scaleResult})`;
+}
+window.addEventListener('resize', resizeAll);
+setTimeout(resizeAll, 300);
+
+startMask.onclick = () => {
+    startMask.style.display = 'none';
+    game.running = true;
+    startGameLoop();
+};
+
+const touchDir = { up: false, down: false, left: false, right: false };
+const keyState = { KeyW: false, KeyS: false, KeyA: false, KeyD: false };
+
+btnUp.onmousedown = ()=>touchDir.up=true;
+btnDown.onmousedown = ()=>touchDir.down=true;
+btnLeft.onmousedown = ()=>touchDir.left=true;
+btnRight.onmousedown = ()=>touchDir.right=true;
+btnUp.onmouseup = btnUp.onmouseleave = ()=>touchDir.up=false;
+btnDown.onmouseup = btnDown.onmouseleave = ()=>touchDir.down=false;
+btnLeft.onmouseup = btnLeft.onmouseleave = ()=>touchDir.left=false;
+btnRight.onmouseup = btnRight.onmouseleave = ()=>touchDir.right=false;
+
+document.addEventListener('keydown', e=>{
+    if(e.code in keyState) keyState[e.code]=true;
+    if(e.code==='Space'){ e.preventDefault(); shootBullet(); }
+});
+document.addEventListener('keyup', e=>{if(e.code in keyState) keyState[e.code]=false;});
+
+function getMoveDir(){
+    return {
+        up: touchDir.up||keyState.KeyW,
+        down: touchDir.down||keyState.KeyS,
+        left: touchDir.left||keyState.KeyA,
+        right: touchDir.right||keyState.KeyD
+    };
+}
+function shootBullet(){
+    if(!game.running) return;
+    AudioManager.playShoot();
+    const bullet = document.createElement('img');
+    bullet.src = 'images/skill.png';
+    bullet.className = 'bullet';
+    const pLeft = game.playerX + game.playerW;
+    const pBulletY = game.playerY + 60;
+    bullet.style.left = pLeft + 'px';
+    bullet.style.bottom = pBulletY + 'px';
+    gameBox.appendChild(bullet);
+    game.bulletArr.push({dom:bullet,x:pLeft,y:pBulletY,speed:15});
+}
+btnAtk.onclick = shootBullet;
+
+function createExplode(x,y){
+    const explode = document.createElement('img');
+    explode.src = 'images/baozha.png';
+    explode.className = 'explode';
+    explode.style.left = x+'px';
+    explode.style.bottom = y+'px';
+    gameBox.appendChild(explode);
+    setTimeout(()=>explode.remove(),300);
+}
+function playerHurtEffect(){
+    if(game.isPlayerHurt) return;
+    game.isPlayerHurt = true;
+    player.classList.add('player-hurt');
+    AudioManager.playPlayerHit();
+    setTimeout(()=>{player.classList.remove('player-hurt');game.isPlayerHurt=false;},500);
+}
+function createMonster(){
+    if(!game.running || game.monsterArr.length >= game.maxMonsterCount) return;
+    const mType = Math.random()>0.5?'m1':'m2';
+    const monster = document.createElement('img');
+    monster.src = mType==='m1'?'images/guai.png':'images/guaai.png';
+    monster.className = 'monster '+mType;
+    const mH = mType==='m1'?130:110;
+    const maxBot = game.originH - game.topBuildingLine - mH;
+    const randBot = Math.floor(Math.random()*(maxBot-game.snowBottomLine)+game.snowBottomLine);
+    const speed = Math.floor(Math.random()*4+3);
+    monster.style.left = game.originW+'px';
+    monster.style.bottom = randBot+'px';
+    gameBox.appendChild(monster);
+    game.monsterArr.push({dom:monster,type:mType,x:game.originW,y:randBot,speed:speed});
+}
+function startGameLoop(){
+    game.monsterTimer = setInterval(createMonster,1200);
+    function frame(){
+        if(!game.running) return;
+        const dir = getMoveDir();
+        const maxY = game.originH - game.topBuildingLine - game.playerH;
+        const maxX = game.originW - game.playerW;
+        let newX = game.playerX;
+        let newY = game.playerY;
+        if(dir.up) newY += game.playerSpeed;
+        if(dir.down) newY -= game.playerSpeed;
+        if(dir.left) newX -= game.playerSpeed;
+        if(dir.right) newX += game.playerSpeed;
+        game.playerX = Math.max(0, Math.min(newX, maxX));
+        game.playerY = Math.max(game.snowBottomLine, Math.min(newY, maxY));
+        player.style.left = game.playerX+'px';
+        player.style.bottom = game.playerY+'px';
+        for(let i=game.bulletArr.length-1;i>=0;i--){
+            const b = game.bulletArr[i];
+            b.x += b.speed;
+            b.dom.style.left = b.x+'px';
+            if(b.x>game.originW){b.dom.remove();game.bulletArr.splice(i,1);}
+        }
+        for(let mI=game.monsterArr.length-1;mI>=0;mI--){
+            const m = game.monsterArr[mI];
+            m.x -= m.speed;
+            m.dom.style.left = m.x+'px';
+            const mW = m.type==='m1'?160:140;
+            const mH = m.type==='m1'?130:110;
+            const pW=game.playerW,pH=game.playerH,pX=game.playerX,pY=game.playerY;
+            if(checkCollision(pX,pY,pW,pH,m.x,m.y,mW,mH)){
+                game.hp -=10;
+                updateHPUI();
+                playerHurtEffect();
+                m.dom.remove();
+                game.monsterArr.splice(mI,1);
+                if(game.hp<=0){gameOver();return;}
+                continue;
+            }
+            for(let bI=game.bulletArr.length-1;bI>=0;bI--){
+                const b = game.bulletArr[bI];
+                if(checkCollision(b.x,b.y,140,32,m.x,m.y,mW,mH)){
+                    AudioManager.playMonsterHit();
+                    createExplode(m.x,m.y);
+                    b.dom.remove();
+                    game.bulletArr.splice(bI,1);
+                    m.dom.remove();
+                    game.monsterArr.splice(mI,1);
+                    game.score +=20;
+                    game.killCount +=1;
+                    scoreNum.innerText = game.score;
+                    killNum.innerText = game.killCount;
+                    break;
+                }
+            }
+            if(m.x < -200){m.dom.remove();game.monsterArr.splice(mI,1);}
+        }
+        game.frameTimer = requestAnimationFrame(frame);
+    }
+    frame();
+}
+function checkCollision(x1,y1,w1,h1,x2,y2,w2,h2){
+    const l1=x1,r1=x1+w1,b1=y1,t1=y1+h1;
+    const l2=x2,r2=x2+w2,b2=y2,t2=y2+h2;
+    return !(r1<l2 || l1>r2 || t1<b2 || b1>t2);
+}
+function updateHPUI(){
+    game.hp = Math.max(0,game.hp);
+    hpNum.innerText = game.hp;
+    hpFill.style.width = (game.hp/100*316)+'px';
+}
+function gameOver(){
+    game.running = false;
+    clearInterval(game.monsterTimer);
+    cancelAnimationFrame(game.frameTimer);
+    totalKill = game.killCount;
+    gameWrap.style.display = 'none';
+    renderResult();
+    resultWrap.style.display = 'block';
+    resultWrap.onclick = function(e) {
+        e.stopPropagation();
+        navigateTo('main');
+    };
+    setTimeout(resizeAll, 50);
+}
+function renderResult(){
+    bgSuccess.style.display='none';bgFail.style.display='none';charNormal.style.display='none';
+    star1.style.display='none';star2.style.display='none';star3.style.display='none';
+    exp500.style.display='none';exp1000.style.display='none';exp1500.style.display='none';
+    if(totalKill>=15){
+        bgSuccess.style.display='block';charNormal.style.display='block';
+        if(totalKill>=15&&totalKill<30) star1.style.display='block',exp500.style.display='block';
+        else if(totalKill>=30&&totalKill<45) star2.style.display='block',exp1000.style.display='block';
+        else star3.style.display='block',exp1500.style.display='block';
+    }else bgFail.style.display='block';
+}
+})();
+
+// ================================================================
+// 砚白游戏 (角色2)
+// ================================================================
+(function(){
+let totalKill = 0;
+const game = {
+    running: false, hp: 100, score: 0, killCount: 0,
+    playerX: 40, playerY: 220, playerSpeed: 8,
+    bulletArr: [], monsterArr: [], monsterTimer: null, frameTimer: null,
+    snowBottomLine: 220, topBuildingLine: 180, isPlayerHurt: false, maxMonsterCount: 6,
+    originW: 1707, originH: 960, playerW:110, playerH:180
+};
+const gameBox = document.getElementById('gameBox2');
+const gameWrap = document.getElementById('gameWrap2');
+const resultWrap = document.getElementById('resultWrap2');
+const player = document.getElementById('player2');
+const hpFill = document.getElementById('hpFill2');
+const hpNum = document.getElementById('hpNum2');
+const scoreNum = document.getElementById('scoreNum2');
+const killNum = document.getElementById('killNum2');
+const startMask = document.getElementById('startMask2');
+const btnUp = document.getElementById('btnUp2');
+const btnDown = document.getElementById('btnDown2');
+const btnLeft = document.getElementById('btnLeft2');
+const btnRight = document.getElementById('btnRight2');
+const btnAtk = document.getElementById('btnAtk2');
+const backBtn = document.getElementById('backBtn2');
+const bgSuccess = resultWrap.querySelector('.bg-success');
+const bgFail = resultWrap.querySelector('.bg-fail');
+const charNormal = resultWrap.querySelector('.char');
+const star1 = resultWrap.querySelector('.star1');
+const star2 = resultWrap.querySelector('.star2');
+const star3 = resultWrap.querySelector('.star3');
+const exp500 = resultWrap.querySelector('.exp-500');
+const exp1000 = resultWrap.querySelector('.exp-1000');
+const exp1500 = resultWrap.querySelector('.exp-1500');
+
+function resetGame(){
+    game.running = false;
+    clearInterval(game.monsterTimer);
+    cancelAnimationFrame(game.frameTimer);
+    game.hp = 100;
+    game.score = 0;
+    game.killCount = 0;
+    game.playerX = 40;
+    game.playerY = 220;
+    game.isPlayerHurt = false;
+    game.bulletArr.forEach(b=>b.dom.remove());
+    game.monsterArr.forEach(m=>m.dom.remove());
+    game.bulletArr = [];
+    game.monsterArr = [];
+    hpNum.innerText = game.hp;
+    hpFill.style.width = '316px';
+    scoreNum.innerText = game.score;
+    killNum.innerText = game.killCount;
+    player.style.left = game.playerX+'px';
+    player.style.bottom = game.playerY+'px';
+    player.classList.remove('player-hurt');
+    startMask.style.display = 'flex';
+    resultWrap.style.display = 'none';
+    resultWrap.onclick = null;
+    gameWrap.style.display = 'block';
+}
+window.resetRole2 = resetGame;
+
+backBtn.onclick = ()=>{
+    resetGame();
+    navigateTo('select');
+};
+
+function resizeAll() {
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const scaleGame = Math.min(winW / game.originW, winH / game.originH);
+    gameWrap.style.transform = `scale(${scaleGame})`;
+    const resW = 1920, resH = 1080;
+    const scaleResult = Math.min(winW / resW, winH / resH);
+    resultWrap.style.transform = `translate(-50%, -50%) scale(${scaleResult})`;
+}
+window.addEventListener('resize', resizeAll);
+setTimeout(resizeAll, 300);
+
+startMask.onclick = () => {
+    startMask.style.display = 'none';
+    game.running = true;
+    startGameLoop();
+};
+
+const touchDir = { up: false, down: false, left: false, right: false };
+const keyState = { KeyW: false, KeyS: false, KeyA: false, KeyD: false };
+
+btnUp.onmousedown = ()=>touchDir.up=true;
+btnDown.onmousedown = ()=>touchDir.down=true;
+btnLeft.onmousedown = ()=>touchDir.left=true;
+btnRight.onmousedown = ()=>touchDir.right=true;
+btnUp.onmouseup = btnUp.onmouseleave = ()=>touchDir.up=false;
+btnDown.onmouseup = btnDown.onmouseleave = ()=>touchDir.down=false;
+btnLeft.onmouseup = btnLeft.onmouseleave = ()=>touchDir.left=false;
+btnRight.onmouseup = btnRight.onmouseleave = ()=>touchDir.right=false;
+
+document.addEventListener('keydown', e=>{
+    if(e.code in keyState) keyState[e.code]=true;
+    if(e.code==='Space'){ e.preventDefault(); shootBullet(); }
+});
+document.addEventListener('keyup', e=>{if(e.code in keyState) keyState[e.code]=false;});
+
+function getMoveDir(){
+    return {
+        up: touchDir.up||keyState.KeyW,
+        down: touchDir.down||keyState.KeyS,
+        left: touchDir.left||keyState.KeyA,
+        right: touchDir.right||keyState.KeyD
+    };
+}
+function shootBullet(){
+    if(!game.running) return;
+    AudioManager.playShoot();
+    const bullet = document.createElement('img');
+    bullet.src = 'images/sskill.png';
+    bullet.className = 'bullet';
+    const pLeft = game.playerX + game.playerW;
+    const pBulletY = game.playerY + 60;
+    bullet.style.left = pLeft + 'px';
+    bullet.style.bottom = pBulletY + 'px';
+    gameBox.appendChild(bullet);
+    game.bulletArr.push({dom:bullet,x:pLeft,y:pBulletY,speed:15});
+}
+btnAtk.onclick = shootBullet;
+
+function createExplode(x,y){
+    const explode = document.createElement('img');
+    explode.src = 'images/baozha.png';
+    explode.className = 'explode';
+    explode.style.left = x+'px';
+    explode.style.bottom = y+'px';
+    gameBox.appendChild(explode);
+    setTimeout(()=>explode.remove(),300);
+}
+function playerHurtEffect(){
+    if(game.isPlayerHurt) return;
+    game.isPlayerHurt = true;
+    player.classList.add('player-hurt');
+    AudioManager.playPlayerHit();
+    setTimeout(()=>{player.classList.remove('player-hurt');game.isPlayerHurt=false;},500);
+}
+function createMonster(){
+    if(!game.running || game.monsterArr.length >= game.maxMonsterCount) return;
+    const mType = Math.random()>0.5?'m1':'m2';
+    const monster = document.createElement('img');
+    monster.src = mType==='m1'?'images/guai.png':'images/guaai.png';
+    monster.className = 'monster '+mType;
+    const mH = mType==='m1'?130:110;
+    const maxBot = game.originH - game.topBuildingLine - mH;
+    const randBot = Math.floor(Math.random()*(maxBot-game.snowBottomLine)+game.snowBottomLine);
+    const speed = Math.floor(Math.random()*4+3);
+    monster.style.left = game.originW+'px';
+    monster.style.bottom = randBot+'px';
+    gameBox.appendChild(monster);
+    game.monsterArr.push({dom:monster,type:mType,x:game.originW,y:randBot,speed:speed});
+}
+function startGameLoop(){
+    game.monsterTimer = setInterval(createMonster,1200);
+    function frame(){
+        if(!game.running) return;
+        const dir = getMoveDir();
+        const maxY = game.originH - game.topBuildingLine - game.playerH;
+        const maxX = game.originW - game.playerW;
+        let newX = game.playerX;
+        let newY = game.playerY;
+        if(dir.up) newY += game.playerSpeed;
+        if(dir.down) newY -= game.playerSpeed;
+        if(dir.left) newX -= game.playerSpeed;
+        if(dir.right) newX += game.playerSpeed;
+        game.playerX = Math.max(0, Math.min(newX, maxX));
+        game.playerY = Math.max(game.snowBottomLine, Math.min(newY, maxY));
+        player.style.left = game.playerX+'px';
+        player.style.bottom = game.playerY+'px';
+        for(let i=game.bulletArr.length-1;i>=0;i--){
+            const b = game.bulletArr[i];
+            b.x += b.speed;
+            b.dom.style.left = b.x+'px';
+            if(b.x>game.originW){b.dom.remove();game.bulletArr.splice(i,1);}
+        }
+        for(let mI=game.monsterArr.length-1;mI>=0;mI--){
+            const m = game.monsterArr[mI];
+            m.x -= m.speed;
+            m.dom.style.left = m.x+'px';
+            const mW = m.type==='m1'?160:140;
+            const mH = m.type==='m1'?130:110;
+            const pW=game.playerW,pH=game.playerH,pX=game.playerX,pY=game.playerY;
+            if(checkCollision(pX,pY,pW,pH,m.x,m.y,mW,mH)){
+                game.hp -=10;
+                updateHPUI();
+                playerHurtEffect();
+                m.dom.remove();
+                game.monsterArr.splice(mI,1);
+                if(game.hp<=0){gameOver();return;}
+                continue;
+            }
+            for(let bI=game.bulletArr.length-1;bI>=0;bI--){
+                const b = game.bulletArr[bI];
+                if(checkCollision(b.x,b.y,140,32,m.x,m.y,mW,mH)){
+                    AudioManager.playMonsterHit();
+                    createExplode(m.x,m.y);
+                    b.dom.remove();
+                    game.bulletArr.splice(bI,1);
+                    m.dom.remove();
+                    game.monsterArr.splice(mI,1);
+                    game.score +=20;
+                    game.killCount +=1;
+                    scoreNum.innerText = game.score;
+                    killNum.innerText = game.killCount;
+                    break;
+                }
+            }
+            if(m.x < -200){m.dom.remove();game.monsterArr.splice(mI,1);}
+        }
+        game.frameTimer = requestAnimationFrame(frame);
+    }
+    frame();
+}
+function checkCollision(x1,y1,w1,h1,x2,y2,w2,h2){
+    const l1=x1,r1=x1+w1,b1=y1,t1=y1+h1;
+    const l2=x2,r2=x2+w2,b2=y2,t2=y2+h2;
+    return !(r1<l2 || l1>r2 || t1<b2 || b1>t2);
+}
+function updateHPUI(){
+    game.hp = Math.max(0,game.hp);
+    hpNum.innerText = game.hp;
+    hpFill.style.width = (game.hp/100*316)+'px';
+}
+function gameOver(){
+    game.running = false;
+    clearInterval(game.monsterTimer);
+    cancelAnimationFrame(game.frameTimer);
+    totalKill = game.killCount;
+    gameWrap.style.display = 'none';
+    renderResult();
+    resultWrap.style.display = 'block';
+    resultWrap.onclick = function(e) {
+        e.stopPropagation();
+        navigateTo('main');
+    };
+    setTimeout(resizeAll, 50);
+}
+function renderResult(){
+    bgSuccess.style.display='none';bgFail.style.display='none';charNormal.style.display='none';
+    star1.style.display='none';star2.style.display='none';star3.style.display='none';
+    exp500.style.display='none';exp1000.style.display='none';exp1500.style.display='none';
+    if(totalKill>=15){
+        bgSuccess.style.display='block';charNormal.style.display='block';
+        if(totalKill>=15&&totalKill<30) star1.style.display='block',exp500.style.display='block';
+        else if(totalKill>=30&&totalKill<45) star2.style.display='block',exp1000.style.display='block';
+        else star3.style.display='block',exp1500.style.display='block';
+    }else bgFail.style.display='block';
+}
+})();
+</script>
+</body>
+</html>
